@@ -1,0 +1,59 @@
+{% extends "loading.html" %}
+
+{% block head %}
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+{% endblock %}.
+
+
+{% block body %}
+    <a class="btn btn-outline-secondary" href="{{ request.headers.get('referer', 'index') }}">
+        back
+    </a>
+    <div align="middle">
+        <form action="" method="post" id="form" onsubmit="submit_form()" novalidate>
+            <p>{{ form.hidden_tag() }}</p>
+            {% for i in form %}
+                {% if i.name not in ['csrf_token', 'submit'] %}
+                    <p>
+                        {{ i.label }}<br>
+                        {{ i }}<br>
+                        {% if form.errors.get(i.name) %}
+                            <p>
+                            <div class="alert alert-danger">
+                                {% for error in form.errors.get(i.name) %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                {% endif %}
+            {% endfor %}
+            <div>
+                <button class="btn btn-primary"
+                        type="submit"
+                        id="submit">
+                    <span class="spinner-border spinner-border-sm"
+                          role="status" aria-hidden="true"
+                          style="display: none" id="spinner">
+                        <span class="sr-only">Loading...</span>
+                    </span>
+                    <span id="button_text">Log In</span>
+                </button>
+                {% if form.errors.get('account', None) %}
+                    <div class="alert alert-danger">
+                        {% for i in form.errors['account'] %}
+                            {{ i }}<br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {#
+                <div class="spinner-border text-primary"
+                     role="status"
+                     style="display: none"
+                     id="spinner">
+                    <span class="sr-only">loading...</span>
+                </div>
+                #}
+            </div>
+        </form>
+    </div>
+{% endblock %}
