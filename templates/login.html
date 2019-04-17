@@ -1,31 +1,33 @@
 {% extends "loading.html" %}
 
 {% block head %}
-    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
 {% endblock %}.
 
 
 {% block body %}
-    <a class="btn btn-outline-secondary" href="{{ request.headers.get('referer', 'index') }}">
-        back
+<div align="middle" style="width: 15rem; height: 20rem">
+    <a class="btn btn-outline-dark btn-sm float-right" href="{{ request.headers.get('referer', 'index') }}"
+       style="border-radius: 10%">
+        ❌
     </a>
     <div align="middle">
         <form action="" method="post" id="form" onsubmit="submit_form()" novalidate>
             <p>{{ form.hidden_tag() }}</p>
             {% for i in form %}
-                {% if i.name not in ['csrf_token', 'submit'] %}
-                    <p>
-                        {{ i.label }}<br>
-                        {{ i }}<br>
-                        {% if form.errors.get(i.name) %}
-                            <p>
-                            <div class="alert alert-danger">
-                                {% for error in form.errors.get(i.name) %}
-                                    {{ error }}<br>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                {% endif %}
+            {% if i.name not in ['csrf_token', 'submit'] %}
+            <p>
+                {{ i.label }}<br>
+                {{ i }}<br>
+                {% if form.errors.get(i.name) %}
+            <p>
+            <div class="alert alert-danger">
+                {% for error in form.errors.get(i.name) %}
+                {{ error }}<br>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endif %}
             {% endfor %}
             <div>
                 <button class="btn btn-primary"
@@ -39,21 +41,14 @@
                     <span id="button_text">Log In</span>
                 </button>
                 {% if form.errors.get('account', None) %}
-                    <div class="alert alert-danger">
-                        {% for i in form.errors['account'] %}
-                            {{ i }}<br>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-                {#
-                <div class="spinner-border text-primary"
-                     role="status"
-                     style="display: none"
-                     id="spinner">
-                    <span class="sr-only">loading...</span>
+                <div class="alert alert-danger">
+                    {% for i in form.errors['account'] %}
+                    {{ i }}<br>
+                    {% endfor %}
                 </div>
-                #}
+                {% endif %}
             </div>
         </form>
     </div>
+</div>
 {% endblock %}

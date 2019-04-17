@@ -115,3 +115,9 @@ class UsersModel:
         r = c.fetchall()
         c.close()
         return r
+
+    def __getitem__(self, id):
+        return self.get_user(id)
+
+    def __delitem__(self, id):
+        self.del_user(id)
