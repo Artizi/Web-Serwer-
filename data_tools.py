@@ -44,19 +44,6 @@ class UsersModel:
         """
         self.con = db.get_connection()
 
-    def fill_table(self):
-        """
-        Для тестов
-        """
-        self.con.execute('INSERT INTO users (name, password, status) VALUES ("admin", "admin", "admin")')
-        for n in range(100):
-            self.con.execute('INSERT INTO users (name, password) VALUES (?, ?)',
-                             (str(''.join(random.choices('qwertyuiopasdfghjklzxcvbnm', k=10))),
-                              str(''.join(random.choices('1234567890', k=10))))
-                             )
-        self.con.execute('INSERT INTO users (name, password) VALUES ("name1", "password1")')
-        self.con.commit()
-
     def create_table(self):
         self.con.execute('''
         CREATE TABLE if NOT EXISTS "users" (
@@ -105,8 +92,8 @@ class UsersModel:
         UPDATE users SET {} WHERE id=?
         '''.format(', '.join(k + '=?' for k in keys)), (*[kwargs[k] for k in keys], id))
 
-    def add_user(self, name, password, status='user'):
-        self.con.execute('INSERT INTO users (name, password, status) VALUES (?,?,?)', (name, password, status))
+    def add_user(self, name, password):
+        self.con.execute('INSERT INTO users (name, password) VALUES (?,?)', (name, password))
         self.con.commit()
 
     def get_all(self):
