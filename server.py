@@ -11,10 +11,25 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = r'=CqWM9G&BpA&MuKTR5Qv5=8qV^2xExC9%yM7@=fA+V5nAstAf3tAR$#&+v^a2hvY'
 
 
+def set_session(uid):
+    session['uid'] = uid
+    u = um[uid]
+    session['name'] = u['name']
+
+
+def del_session():
+    session.pop('uid')
+    session.pop('name')
+
+
+def logged_in():
+    return 'uid' in session
+
+
 def login_required(f):
     @wraps(f)
     def login_required_wrapper(*args, **kwargs):
-        if 'user_id' not in session:
+        if not logged_in():
             if request.headers.get('referer', 'index').endswith('login'):
                 return redirect('index')
             else:
@@ -32,17 +47,6 @@ def get_redirect_link():
         return request.headers.get('referer', 'index')
 
 
-def set_session(uid):
-    session['uid'] = uid
-    u = um[uid]
-    session['name'] = u['name']
-
-
-def del_session():
-    session.pop('uid')
-    session.pop('name')
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login_form():
     form = LoginForm()
@@ -51,7 +55,7 @@ def login_form():
             users = um.find_user(name=form.login.data, password=form.password.data)
             if users:
                 user = users[0]
-                set_session(user)
+                set_session(user['id'])
             else:
                 form.errors['account'] = ['Неверные данные для входа']
     if 'uid' not in session:
@@ -65,13 +69,13 @@ def login_form():
 @app.route('/register', methods=['GET', 'POST'])
 def register_form():
     form = RegisterForm()
-    if 'uid' not in session:
+    if not logged_in():
         if form.validate_on_submit():
             name, pas = form.login.data, form.password.data
             if not um.user_exists(name):
                 um.add_user(name, pas)
                 new_user = um.find_user(name=name, password=pas)[0]
-                set_session(new_user)
+                set_session(new_user['id'])
                 return render_template('login_success.html',
                                        title='Registration successful',
                                        link=get_redirect_link())
@@ -87,6 +91,24 @@ def register_form():
 def logout_page():
     del_session()
     return render_template('logout.html', link=get_redirect_link(), title='Выход')
+
+
+@app.route('/index')
+def index():
+    if logged_in():
+        return redirect('/profile')
+    else:
+        return redirect('/login')
+
+
+@app.route('/profile')
+def profile():
+    if not logged_in():
+        return redirect('/login')
+    else:
+        userdata = um.get_user(session['uid'])
+        print(dict(userdata))
+        return render_template('profile.html', profile=dict(userdata), title='Домашняя страница')
 
 
 if __name__ == '__main__':
